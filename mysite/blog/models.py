@@ -74,8 +74,53 @@ class Post(models.Model):
         return str(self.title)
 
     def get_absolute_url(self):
-        return reverse('blog:post_detail',
-                       args=[self.publish.year,
-                             self.publish.month,
-                             self.publish.day,
-                             self.slug])
+        return reverse(
+            'blog:post_detail',
+            args=[self.publish.year,
+                  self.publish.month,
+                  self.publish.day,
+                  self.slug])
+
+
+class Comment(models.Model):
+    """
+    Модель для таблицы Comment.
+    """
+    post = models.ForeignKey(
+        Post,
+        verbose_name='Пост',
+        on_delete=models.CASCADE,
+        related_name='comments',
+    )
+    name = models.CharField(
+        verbose_name='Имя',
+        max_length=80)
+    email = models.EmailField(
+        verbose_name='Email адрес'
+    )
+    body = models.TextField(
+        verbose_name='Текст комментария'
+    )
+    created = models.DateTimeField(
+        verbose_name='Дата публикации комментария',
+        auto_now_add=True)
+    updated = models.DateTimeField(
+        verbose_name='Дата редактивирования комментария',
+        auto_now=True
+    )
+    active = models.BooleanField(
+        verbose_name='Статус комментария',
+        default=True
+    )
+
+    class Meta:
+        """
+        Метаданные модели.
+        """
+        ordering = ['created']
+        indexes = [
+            models.Index(fields=['created']),
+        ]
+
+    def __str__(self):
+        return f'Comment by {self.name} on {self.post}'
